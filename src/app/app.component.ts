@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 type OptionItem = {
   name: string;
@@ -33,7 +33,7 @@ const ALL_VALUE = 0;
     `,
   ],
 })
-export class NzDemoSelectMultipleComponent implements OnInit {
+export class NzDemoSelectMultipleComponent {
   allItem: OptionItem = { name: 'All', value: ALL_VALUE };
   options: OptionItem[] = [];
   modelValues: number[] = [];
@@ -41,7 +41,7 @@ export class NzDemoSelectMultipleComponent implements OnInit {
   allSelected = false;
   allValues: number[] = [];
 
-  ngOnInit(): void {
+  constructor() {
     const options: OptionItem[] = [];
     for (let i = 11; i < 19; i++) {
       options.push({ name: `${i.toString(36)}${i}`, value: i });
@@ -56,8 +56,10 @@ export class NzDemoSelectMultipleComponent implements OnInit {
     if (this.allSelected) {
       allItemSelected ? this.deselectAllItem() : this.deselectAll();
     } else {
-      allItemSelected ? this.selectAll() : this.selectAllItem();
+      allItemSelected ? this.selectAll() : this.selectItems();
     }
+
+    console.log(this.selectedValues);
   }
 
   private selectAll(): void {
@@ -78,9 +80,10 @@ export class NzDemoSelectMultipleComponent implements OnInit {
     this.allSelected = false;
   }
 
-  private selectAllItem(): void {
+  private selectItems(): void {
+    this.selectedValues = this.modelValues;
+
     if (this.modelValues.length === this.allValues.length) {
-      this.selectedValues = this.modelValues;
       this.modelValues = [this.allItem.value, ...this.modelValues];
       this.allSelected = true;
     }
