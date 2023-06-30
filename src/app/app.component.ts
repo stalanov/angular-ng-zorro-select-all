@@ -15,7 +15,7 @@ const ALL_VALUE = 0;
       [nzMaxTagPlaceholder]="tagPlaceHolder"
       [nzMode]="'multiple'"
       [nzPlaceHolder]="'Please select'"
-      [(ngModel)]="selectedValues" 
+      [(ngModel)]="modelValues" 
       [nzAllowClear]="true"
       (ngModelChange) ="onChange($event)"
     >
@@ -34,48 +34,55 @@ const ALL_VALUE = 0;
   ],
 })
 export class NzDemoSelectMultipleComponent implements OnInit {
+  allItem: OptionItem = { name: 'All', value: ALL_VALUE };
   options: OptionItem[] = [];
+  modelValues: number[] = [];
   selectedValues: number[] = [];
-  selectedAll = false;
+  allSelected = false;
+  allValues: number[] = [];
 
   ngOnInit(): void {
-    const options: OptionItem[] = [{ name: 'All', value: ALL_VALUE }];
-    for (let i = 10; i < 18; i++) {
+    const options: OptionItem[] = [];
+    for (let i = 11; i < 19; i++) {
       options.push({ name: `${i.toString(36)}${i}`, value: i });
     }
-    this.options = options;
+    this.options = [this.allItem, ...options];
+    this.allValues = options.map((item) => item.value);
   }
 
-  onChange(valueArray: number[]) {
-    console.log(this.selectedAll);
-    console.log(valueArray);
-    if (
-      this.selectedValues.includes(0) &&
-      !this.selectedAll &&
-      valueArray.length > 0
-    ) {
-      this.selectedValues = [0, ...this.options.map((item) => item.value)];
-      this.selectedAll = true;
-    } else if (
-      !this.selectedValues.includes(0) &&
-      this.selectedAll &&
-      valueArray.length > 0
-    ) {
-      this.selectedValues = [];
-      this.selectedAll = false;
-    } else if (
-      this.selectedValues.includes(0) &&
-      this.selectedAll &&
-      valueArray.length > 0
-    ) {
-      const index = valueArray.indexOf(0);
-      if (index > -1) {
-        valueArray.splice(index, 1);
-      }
-      this.selectedValues = valueArray;
-      this.selectedAll = false;
-    } else if (valueArray.length === 0) {
-      this.selectedAll = false;
+  onChange(): void {
+    const allItemSelected = this.modelValues.includes(ALL_VALUE);
+
+    if (this.allSelected) {
+      allItemSelected ? this.deselectAllItem() : this.deselectAll();
+    } else {
+      allItemSelected ? this.selectAll() : this.selectAllItem();
+    }
+  }
+
+  private selectAll(): void {
+    this.modelValues = [this.allItem.value, ...this.allValues];
+    this.selectedValues = this.allValues;
+    this.allSelected = true;
+  }
+
+  private deselectAll(): void {
+    this.modelValues = [];
+    this.selectedValues = [];
+    this.allSelected = false;
+  }
+
+  private deselectAllItem(): void {
+    this.modelValues = this.modelValues.slice(1);
+    this.selectedValues = this.modelValues;
+    this.allSelected = false;
+  }
+
+  private selectAllItem(): void {
+    if (this.modelValues.length === this.allValues.length) {
+      this.selectedValues = this.modelValues;
+      this.modelValues = [this.allItem.value, ...this.modelValues];
+      this.allSelected = true;
     }
   }
 }
